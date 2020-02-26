@@ -31,7 +31,7 @@ scratch. This page gets rid of all links and provides the needed markup only.
             <!-- SEARCH FORM -->
             <div class="input-group input-group-sm">
                 <input class="form-control form-control-navbar" 
-                @keyup.enter="searchit"
+                @keyup="searchit"
                 v-model="search" 
                 type="search" 
                 placeholder="Search" aria-label="Search">
