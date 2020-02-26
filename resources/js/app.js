@@ -38,6 +38,8 @@ window.Form = Form;
 Vue.component(HasError.name, HasError)
 Vue.component(AlertError.name, AlertError)
 
+Vue.component('pagination', require('laravel-vue-pagination'));
+
 import VueRouter from 'vue-router'
 Vue.use(VueRouter)
 
@@ -49,7 +51,8 @@ Vue.use(VueProgressBar, {
 })
 
 
-let routes = [{
+let routes = [
+    {
         path: '/dashboard',
         component: require('./components/Dashboard.vue').default
     },
@@ -64,6 +67,10 @@ let routes = [{
     {
         path: '/profile',
         component: require('./components/Profile.vue').default
+    },
+    {
+        path: '*',
+        component: require('./components/NotFound.vue').default
     }
 ]
 
@@ -109,6 +116,11 @@ Vue.component(
     require('./components/passport/PersonalAccessTokens.vue').default
 );
 
+Vue.component(
+    'not-found',
+    require('./components/NotFound.vue').default
+);
+
 
 Vue.component('example-component', require('./components/ExampleComponent.vue').default);
 
@@ -120,5 +132,13 @@ Vue.component('example-component', require('./components/ExampleComponent.vue').
 
 const app = new Vue({
     el: '#app',
-    router
+    router,
+    data:{
+        search: ''
+    },
+    methods:{
+        searchit(){
+            Fire.$emit('searching');
+        }
+    }
 });

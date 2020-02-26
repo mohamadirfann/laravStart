@@ -29,16 +29,18 @@ scratch. This page gets rid of all links and provides the needed markup only.
             </ul>
 
             <!-- SEARCH FORM -->
-            <form class="form-inline ml-3">
-                <div class="input-group input-group-sm">
-                    <input class="form-control form-control-navbar" type="search" placeholder="Search" aria-label="Search">
-                    <div class="input-group-append">
-                        <button class="btn btn-navbar" type="submit">
-                            <i class="fas fa-search"></i>
-                        </button>
-                    </div>
+            <div class="input-group input-group-sm">
+                <input class="form-control form-control-navbar" 
+                @keyup.enter="searchit"
+                v-model="search" 
+                type="search" 
+                placeholder="Search" aria-label="Search">
+                <div class="input-group-append">
+                    <button class="btn btn-navbar" @click="searchit">
+                        <i class="fas fa-search"></i>
+                    </button>
                 </div>
-            </form>
+            </div>
 
         </nav>
         <!-- /.navbar -->
@@ -61,6 +63,9 @@ scratch. This page gets rid of all links and provides the needed markup only.
                     <div class="info">
                         <a href="#" class="d-block">
                             {{Auth::user()->name}}
+                            <span class="d-block text-muted">
+                                {{Auth::user()->type}}
+                            </span>
                         </a>
                     </div>
                 </div>
@@ -164,7 +169,7 @@ scratch. This page gets rid of all links and provides the needed markup only.
         </footer>
     </div>
     <!-- ./wrapper -->
-
+    
     @auth
     <script>
         window.user = @json(auth()->user())

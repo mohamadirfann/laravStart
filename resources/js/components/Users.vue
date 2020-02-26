@@ -27,12 +27,14 @@
                 </tr>
               </thead>
               <tbody>
-                <tr v-for="user in users" :key="user.id">
-                  <td>{{user.id}}</td>
-                  <td>{{user.name}}</td>
-                  <td>{{user.email}}</td>
-                  <td>{{user.type | upText}}</td>
-                  <td>{{user.created_at | myDate}}</td>
+                
+                <tr v-for="user in users.data" :key="user.id">
+
+                  <td>{{ user.id }}</td>
+                  <td>{{ user.name }}</td>
+                  <td>{{ user.email }}</td>
+                  <td>{{ user.type | upText }}</td>
+                  <td>{{ user.created_at | myDate }}</td>
                   <td>
                     <a href="#" @click="editModal(user)">
                       <i class="fa fa-edit blue"></i>
@@ -47,9 +49,16 @@
             </table>
           </div>
           <!-- /.card-body -->
+          <div class="card-footer">
+            <pagination :data="users" @pagination-change-page="getResults"></pagination>
+          </div>
         </div>
         <!-- /.card -->
       </div>
+    </div>
+
+    <div v-if="!$gate.isAdmin()">
+      <not-found></not-found>
     </div>
 
     <!-- Modal -->
@@ -64,9 +73,18 @@
       <div class="modal-dialog modal-dialog-centered" role="document">
         <div class="modal-content">
           <div class="modal-header">
-            <h5 class="modal-title" v-show="!editmode" id="addNewLabel">Add New</h5>
-            <h5 class="modal-title" v-show="editmode" id="addNewLabel">Update User's Info</h5>
-            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <h5 class="modal-title" v-show="!editmode" id="addNewLabel">
+              Add New
+            </h5>
+            <h5 class="modal-title" v-show="editmode" id="addNewLabel">
+              Update User's Info
+            </h5>
+            <button
+              type="button"
+              class="close"
+              data-dismiss="modal"
+              aria-label="Close"
+            >
               <span aria-hidden="true">&times;</span>
             </button>
           </div>
@@ -91,7 +109,9 @@
                   name="email"
                   placeholder="Email Address"
                   class="form-control"
-                  :class="{ 'is-invalid': form.errors.has('email') }"
+                  :class="{
+                    'is-invalid': form.errors.has('email')
+                  }"
                 />
                 <has-error :form="form" field="email"></has-error>
               </div>
@@ -103,7 +123,9 @@
                   id="bio"
                   placeholder="Short bio for user (Optional)"
                   class="form-control"
-                  :class="{ 'is-invalid': form.errors.has('bio') }"
+                  :class="{
+                    'is-invalid': form.errors.has('bio')
+                  }"
                 ></textarea>
                 <has-error :form="form" field="bio"></has-error>
               </div>
@@ -114,7 +136,9 @@
                   v-model="form.type"
                   id="type"
                   class="form-control"
-                  :class="{ 'is-invalid': form.errors.has('type') }"
+                  :class="{
+                    'is-invalid': form.errors.has('type')
+                  }"
                 >
                   <option value>Select User Role</option>
                   <option value="admin">Admin</option>
@@ -131,15 +155,23 @@
                   name="password"
                   id="password"
                   class="form-control"
-                  :class="{ 'is-invalid': form.errors.has('password') }"
+                  :class="{
+                    'is-invalid': form.errors.has('password')
+                  }"
                 />
                 <has-error :form="form" field="password"></has-error>
               </div>
             </div>
             <div class="modal-footer">
-              <button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
-              <button v-show="editmode" type="submit" class="btn btn-success">Update</button>
-              <button v-show="!editmode" type="submit" class="btn btn-primary">Create</button>
+              <button type="button" class="btn btn-danger" data-dismiss="modal">
+                Close
+              </button>
+              <button v-show="editmode" type="submit" class="btn btn-success">
+                Update
+              </button>
+              <button v-show="!editmode" type="submit" class="btn btn-primary">
+                Create
+              </button>
             </div>
           </form>
         </div>
@@ -166,6 +198,12 @@ export default {
     };
   },
   methods: {
+    getResults(page = 1) {
+      axios.get('api/user?page=' + page)
+      .then(response => {
+        this.users = response.data;
+      });
+    },
     updateUser() {
       this.$Progress.start();
       // console.log("Editing data");
@@ -221,7 +259,7 @@ export default {
     },
     loadUsers() {
       if (this.$gate.isAdmin()) {
-        axios.get("api/user").then(({ data }) => (this.users = data.data));
+        axios.get("api/user").then(({ data }) => (this.users = data));
       }
     },
     createUser() {
@@ -244,7 +282,17 @@ export default {
         });
     }
   },
-  mounted() {
+  created() {
+    Fire.$on("searching", () => {
+      let query = this.$parent.search;
+      axios.get('api/findUser?q=' + query)
+      .then((data) => {
+        this.users = data.data
+      })
+      .catch(() => {
+
+      })
+    });
     this.loadUsers();
     Fire.$on("AfterCreate", () => {
       this.loadUsers();
